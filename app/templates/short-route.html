@@ -1,6 +1,9 @@
 <ion-view view-title="Short Route">
   <ion-content>
+
     <div class="map"></div>
-    <ui-gmap-google-map center='map.center' zoom='map.zoom'></ui-gmap-google-map>
+    <div id="map-canvas"></div>
+    <!-- <ui-gmap-google-map center='map.center' zoom='map.zoom'></ui-gmap-google-map> -->
+    <button ng-click="calcRoute()">clickme</button> 
   </ion-content>
 </ion-view>
