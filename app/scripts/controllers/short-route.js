@@ -29,6 +29,11 @@ angular.module('ShortRoute')
       $scope.getlink = getIntersections.getlink;
       var start = '611 Mission St #2 San Francisco, CA 94105';
       var end = '28470 Triton St, Hayward, CA, United States';
+      var marker = new maps.Marker({
+        position: start,
+        map: map,
+        title: 'current location'
+      });
       var request = {
         origin:start,
         destination:end,
@@ -44,15 +49,13 @@ angular.module('ShortRoute')
         console.log('result :', result);
         // var intersections = $scope.getlink(result.routes[0].overview_path[0].A,result.routes[0].overview_path[0].F);
         $scope.getlink(result.routes[0].overview_path[0].A,result.routes[0].overview_path[0].F, function (resp) {
-          console.log(resp.data);
-          var latBegin = resp.data.indexOf('<lat>');
-          var latEnd = resp.data.indexOf('</lat>');
-          var lat = resp.data.substring(latBegin + 5, latEnd);
-          var lngBegin = resp.data.indexOf('<lng>');
-          var lngEnd = resp.data.indexOf('</lng>');
-          var lng = resp.data.substring(lngBegin + 5, lngEnd);
-          var nearestIntersection = new maps.LatLng(lat, lng);
 
+          var nearestIntersection = getLatLngFromXML(resp.data, maps);
+          var newMarker = new maps.Marker({
+            position: nearestIntersection,
+            map: map,
+            title: 'nearest intersection'
+          });
           // get the route from the nearest intersection
           request.origin = nearestIntersection;
           directionsService.route(request, function (result, status) {
@@ -68,6 +71,20 @@ angular.module('ShortRoute')
     }
     $scope.calcRoute = calcRoute;
   });
+
+  // make LatLng obj from xml
+  function getLatLngFromXML(xml, maps) {
+    console.log(xml);
+    var latBegin = xml.indexOf('<lat>');
+    var latEnd = xml.indexOf('</lat>');
+    var lat = xml.substring(latBegin + 5, latEnd);
+    var lngBegin = xml.indexOf('<lng>');
+    var lngEnd = xml.indexOf('</lng>');
+    var lng = xml.substring(lngBegin + 5, lngEnd);
+    console.log('lat: ', lat);
+    console.log('lng: ', lng);
+    return new maps.LatLng(lat, lng);
+  }
 })
 
 .factory('getIntersections', function ($http) {
